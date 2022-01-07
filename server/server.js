@@ -3,11 +3,12 @@ import cors from "cors"
 import fs from "fs" 
 import mongoose from "mongoose"
 const morgan =require("morgan")
+const router=require('./routes/auth')
 require("dotenv").config(); 
 
 
 const app=express() 
-
+ 
 mongoose.connect(process.env.DATABASE).then(()=>{
     console.log("Data base connected succesfully");
 }).catch((err)=>{
@@ -20,9 +21,10 @@ app.use(morgan("dev"))
 
 
 
-fs.readdirSync("./routes").map(r=>{
-    app.use('/api',require(`./routes/${r}`))
-}) 
+app.use('/api',router)
+// fs.readdirSync("./routes").map(r=>{
+//     app.use(`/api`,require(`./routes/${r}`))
+// }) 
 
  
 

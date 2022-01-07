@@ -7,11 +7,17 @@ import {
 } from "@ant-design/icons";
 import Image from "next/image";
 import icon from "../public/images/die.jpg";
+import { useState, useEffect } from "react";
 
 const { Item } = Menu;
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
 function TopNav() {
+  const [current, setCurrent] = useState(false);
+  useEffect(() => {
+    process.browser && setCurrent(window.location.pathname);
+  }, [process.browser && window.location.pathname]);
+
   return (
     <Menu
       className="text-white"
@@ -23,8 +29,9 @@ function TopNav() {
       }}
       theme="dark"
       mode="horizontal"
+      selectedKeys={current}
     >
-      <Item>
+      <Item key="/logo" onClick={(e) => setCurrent(e.key)}>
         <div
           style={{
             display: "flex",
@@ -37,7 +44,8 @@ function TopNav() {
         </div>
       </Item>
 
-      <Item
+      <Item key="/"
+        onClick={(e) => setCurrent(e.key)}
         style={{
           display: "flex",
           justifyContent: "center",
@@ -51,23 +59,30 @@ function TopNav() {
       </Item>
 
       <Item
+        key="/instructor"
+        onClick={(e) => setCurrent(e.key)}
         icon={
           <UserAddOutlined style={{ color: "#73FBFD", fontSize: "20px" }} />
         }
       >
-        <Link href="/">
+        <Link href="/instructor">
           <a className="text-white">Became Instructor</a>
         </Link>
       </Item>
 
-      <Item style={{marginLeft: 'auto'}} 
+      <Item
+        key="/login"
+        onClick={(e) => setCurrent(e.key)}
+        style={{ marginLeft: "auto" }}
         icon={<LoginOutlined style={{ color: "#73FBFD", fontSize: "20px" }} />}
       >
         <Link href="/login">
           <a className="text-white">Login</a>
         </Link>
       </Item>
-      <Item 
+      <Item
+        key="/register"
+        onClick={(e) => setCurrent(e.key)}
         icon={<UserOutlined style={{ color: "#73FBFD", fontSize: "20px" }} />}
       >
         <Link href="/register">

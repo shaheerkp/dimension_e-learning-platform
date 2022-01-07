@@ -5,8 +5,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 import { Form, Input } from "antd";
-import validator from '@brocode/simple-react-form-validation-helper'
-
+import validator from "@brocode/simple-react-form-validation-helper";
+import Link from "next/link"
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -22,25 +22,23 @@ const Register = () => {
   const [emailErr, setEmailErr] = useState(" ");
   const [passErr, setPassErr] = useState(" ");
 
-  console.log("testing env",process.env.NEXT_PUBLIC_API);
+  const [active,isActive]=useState(false) 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true)
+      setLoading(true);
       if (
         nameStatus == "success" &&
         emailStatus == "success" &&
         passwordStatus == "success"
       ) {
-        const { data } = await axios.post(
-          `${process.env.NEXT_PUBLIC_API}/reqister`,
-          {
-            name,
-            email,
-            password,
-          }
-        );
+        const { data } = await axios.post(`/api/register`, {
+          name,
+          email,
+          password,
+        });
+        console.log("data",data);
         toast.success("User Registered succesfully", {
           position: "top-right",
           autoClose: 1000,
@@ -50,7 +48,7 @@ const Register = () => {
           draggable: true,
           progress: "",
         });
-        setLoading(false)
+        setLoading(false);
       } else {
         toast.warn("Please fill details correctly", {
           position: "top-center",
@@ -61,7 +59,7 @@ const Register = () => {
           draggable: true,
           progress: "",
         });
-        setLoading(false)
+        setLoading(false);
       }
     } catch (error) {
       toast.error("User Already exist  ", {
@@ -73,7 +71,7 @@ const Register = () => {
         draggable: true,
         progress: "",
       });
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -167,9 +165,17 @@ const Register = () => {
             className="btn btn-lg btn-block text-light"
             disabled={!name || !email || !password || loading}
           >
-            {loading?<SyncOutlined spin/>:"Register"}
+            {loading ? <SyncOutlined spin /> : "Register"}
           </button>
         </Form>
+        <p className="text-center p-3">
+          Already Registered  ? 
+          <Link href="/login">
+          Signin
+          </Link>
+         
+
+        </p>
       </div>
     </>
   );
