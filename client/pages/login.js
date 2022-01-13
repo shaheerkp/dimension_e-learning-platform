@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext, useEffect } from "react";
 import { SmileOutlined, SyncOutlined } from "@ant-design/icons";
 // import validator from "../valdator/validator";
 import axios from "axios";
@@ -6,47 +6,57 @@ import { toast } from "react-toastify";
 
 import { Form, Input } from "antd";
 import validator from "@brocode/simple-react-form-validation-helper";
-import Link from "next/link"
+import Link from "next/link";
+import { Context } from "../context";
+import { useRouter } from "next/router";
 
 const Login = () => {
- 
-  const [email, setEmail] = useState(""); 
+  
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  
+  const { state, dispatch } = useContext(Context);
+  const router = useRouter();
+  const {user}=state;
+  
+  useEffect(() => {
+    if(user!==null)
+    {router.push("/");}
+    
+  }, [user])
 
- 
   const [emailStatus, setEmailStatus] = useState("");
   const [passwordStatus, setPasswordStatus] = useState("");
 
- 
   const [emailErr, setEmailErr] = useState(" ");
   const [passErr, setPassErr] = useState(" ");
 
-  const [active,isActive]=useState(false) 
+  const [active, isActive] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      if (
-       
-        emailStatus == "success" &&
-        passwordStatus == "success"
-      ) {
+      if (emailStatus == "success" && passwordStatus == "success") {
         const { data } = await axios.post(`/api/signin`, {
           email,
           password,
         });
-        console.log("login response",data);
-      
+        console.log("login response", data);
+        dispatch({
+          type: "LOGIN",
+          payload: data,
+        });
+        window.localStorage.setItem("User", JSON.stringify(data));
+        router.push("/");
+
         setLoading(false);
       } else {
-    
         setLoading(false);
       }
     } catch (error) {
-  
-      setLoading(false);
+      setLoading(false);     
     }
   };
 
@@ -60,7 +70,6 @@ const Login = () => {
 
       <div className="container col-md-4 offset-md-4 pb-5">
         <Form onSubmitCapture={handleSubmit}>
-    
           <Form.Item hasFeedback validateStatus={emailStatus}>
             <span className="text-center text-danger errspan ">
               {emailErr}{" "}
@@ -116,18 +125,13 @@ const Login = () => {
             type="submit"
             style={{ width: "100%", backgroundColor: "#303030" }}
             className="btn btn-lg btn-block text-light"
-            disabled={ !email || !password || loading}
+            disabled={!email || !password || loading}
           >
             {loading ? <SyncOutlined spin /> : "Login"}
           </button>
         </Form>
         <p className="text-center p-3">
-          Create Account  ? 
-          <Link href="/register">
-          Signup
-          </Link>
-         
-
+          Create Account ?<Link href="/register">Signup</Link>
         </p>
       </div>
     </>

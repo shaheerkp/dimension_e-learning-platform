@@ -1,35 +1,46 @@
 import express from "express";
-import cors from "cors"
-import fs from "fs" 
-import mongoose from "mongoose"
-const morgan =require("morgan")
-const router=require('./routes/auth')
-require("dotenv").config(); 
+import cors from "cors";
+import fs from "fs";
+import csrf from "csurf";
+import cookieParser from "cookie-parser";
+require("dotenv").config();
 
 
-const app=express() 
- 
-mongoose.connect(process.env.DATABASE).then(()=>{
+import mongoose from "mongoose";
+const morgan = require("morgan");
+const router = require("./routes/auth");
+
+const csrfProtection = csrf({ cookie: true });
+
+const app = express();
+app.use(cookieParser())
+
+mongoose
+  .connect(process.env.DATABASE)
+  .then(() => {
     console.log("Data base connected succesfully");
-}).catch((err)=>{
-    console.log("ERRRR",err); 
-})
-   
-app.use(cors()) 
-app.use(express.json())
-app.use(morgan("dev"))
+  })
+  .catch((err) => {
+    console.log("ERRRR", err);
+  });
 
+app.use(cors());
+app.use(express.json());
+app.use(morgan("dev"));
 
-
-app.use('/api',router)
 // fs.readdirSync("./routes").map(r=>{
 //     app.use(`/api`,require(`./routes/${r}`))
-// }) 
+// })
+app.use("/api", router);
+//csrf
+app.use(csrfProtection);
 
- 
-
-
-const port=process.env.PORT||8000
-app.listen(port,()=>{
-    console.log(`listen to ${port}`);
+app.get('/api/csrf-token',(req,res)=>{
+    console.log("csrfff");
+    res.json({csrfToken:req.csrfToken()})
 })
+
+const port = process.env.PORT || 8000;
+app.listen(port, () => {
+  console.log(`listen to ${port}`);
+});

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect,useContext} from "react";
 import { SmileOutlined, SyncOutlined } from "@ant-design/icons";
 // import validator from "../valdator/validator";
 import axios from "axios";
@@ -7,6 +7,9 @@ import { toast } from "react-toastify";
 import { Form, Input } from "antd";
 import validator from "@brocode/simple-react-form-validation-helper";
 import Link from "next/link"
+import {Context} from "../context"
+import { useRouter } from "next/router";
+import { route } from "next/dist/server/router";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -21,6 +24,23 @@ const Register = () => {
   const [nameErr, setNameErr] = useState(" ");
   const [emailErr, setEmailErr] = useState(" ");
   const [passErr, setPassErr] = useState(" ");
+   const {state,dispatch} = useContext(Context)
+   const {user}=state
+   const router = useRouter();
+
+   useEffect(() => {
+     if(user!==null){
+       router.push("/")
+
+     }
+
+    
+   }, [user])
+
+
+
+   console.log("register",state);
+
 
   const [active,isActive]=useState(false) 
 

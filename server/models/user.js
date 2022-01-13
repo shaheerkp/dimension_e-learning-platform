@@ -14,7 +14,7 @@ const userSchema = new Schema(
       required: true,
       unique: true,
     },
-    password: {
+    password: { 
       type: String,
       required: true,
       min: 5,
@@ -32,7 +32,7 @@ const userSchema = new Schema(
     stripe_account_id: "",
     stripe_seller: {},
     stripeSession: {},
-  },
+  }, 
   {
     timestamps: true,
   }

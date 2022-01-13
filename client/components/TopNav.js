@@ -4,19 +4,40 @@ import {
   LoginOutlined,
   UserOutlined,
   UserAddOutlined,
+  CoffeeOutlined,
+  DashboardOutlined,
 } from "@ant-design/icons";
 import Image from "next/image";
 import icon from "../public/images/die.jpg";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { Context } from "../context";
+import axios from "axios";
+import { useRouter } from "next/router";
 
 const { Item } = Menu;
 const SubMenu = Menu.SubMenu;
-const MenuItemGroup = Menu.ItemGroup;
+const ItemGroup = Menu.ItemGroup;
+
 function TopNav() {
   const [current, setCurrent] = useState(false);
+  const { state, dispatch } = useContext(Context);
+  const { user } = state;
+  const router = useRouter();
+
   useEffect(() => {
     process.browser && setCurrent(window.location.pathname);
   }, [process.browser && window.location.pathname]);
+
+  //logout
+  const logout = async (e) => {
+    setCurrent(e.key);
+    dispatch({ type: "LOGOUT" });
+    window.localStorage.removeItem("User");
+    const { data } = await axios.get("/api/signout");
+    console.log("logout", data);
+    alert(data.msg);
+    router.push("/login");
+  };
 
   return (
     <Menu
@@ -44,7 +65,8 @@ function TopNav() {
         </div>
       </Item>
 
-      <Item key="/"
+      <Item
+        key="/"
         onClick={(e) => setCurrent(e.key)}
         style={{
           display: "flex",
@@ -70,25 +92,63 @@ function TopNav() {
         </Link>
       </Item>
 
-      <Item
-        key="/login"
-        onClick={(e) => setCurrent(e.key)}
-        style={{ marginLeft: "auto" }}
-        icon={<LoginOutlined style={{ color: "#73FBFD", fontSize: "20px" }} />}
-      >
-        <Link href="/login">
-          <a className="text-white">Login</a>
-        </Link>
-      </Item>
-      <Item
-        key="/register"
-        onClick={(e) => setCurrent(e.key)}
-        icon={<UserOutlined style={{ color: "#73FBFD", fontSize: "20px" }} />}
-      >
-        <Link href="/register">
-          <a className="text-white">Register</a>
-        </Link>
-      </Item>
+      {user === null ? (
+        <>
+          <Item
+            key="/login"
+            onClick={(e) => setCurrent(e.key)}
+            style={{ marginLeft: "auto" }}
+            icon={
+              <LoginOutlined style={{ color: "#73FBFD", fontSize: "20px" }} />
+            }
+          >
+            <Link href="/login">
+              <a className="text-white">Login</a>
+            </Link>
+          </Item>
+          <Item
+            key="/register"
+            onClick={(e) => setCurrent(e.key)}
+            icon={
+              <UserOutlined style={{ color: "#73FBFD", fontSize: "20px" }} />
+            }
+          >
+            <Link href="/register">
+              <a className="text-white">Register</a>
+            </Link>
+          </Item>
+        </>
+      ) : (
+        <SubMenu
+          style={{ marginLeft: "auto" }}
+          title={user.name}
+          icon={
+            <CoffeeOutlined style={{ color: "#73FBFD", fontSize: "20px" }} />
+          }
+        >
+          <ItemGroup>
+            <Item icon={<DashboardOutlined style={{ color: "#73FBFD", fontSize: "20px" }}></DashboardOutlined>} key="/user">
+              <Link href="/user">
+                <a>Dashboard</a>
+              </Link>
+
+            </Item>
+
+          
+          <Item
+            key="/login"
+            onClick={logout}
+            icon={
+              <LoginOutlined style={{ color: "#73FBFD", fontSize: "20px" }} />
+            }
+          >
+            <Link href="/login">
+              <a className="text-white">Logout</a>
+            </Link>
+          </Item>
+          </ItemGroup>
+        </SubMenu>
+      )}
     </Menu>
   );
 }
