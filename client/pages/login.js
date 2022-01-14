@@ -1,6 +1,5 @@
 import { useState, useContext, useEffect } from "react";
-import { SmileOutlined, SyncOutlined } from "@ant-design/icons";
-// import validator from "../valdator/validator";
+import { SyncOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -49,14 +48,15 @@ const Login = () => {
           payload: data,
         });
         window.localStorage.setItem("User", JSON.stringify(data));
-        router.push("/");
+        router.push("/user");
 
         setLoading(false);
       } else {
         setLoading(false);
       }
     } catch (error) {
-      setLoading(false);     
+      setLoading(false);   
+      toast.error("Invalid credential")  
     }
   };
 
@@ -130,8 +130,14 @@ const Login = () => {
             {loading ? <SyncOutlined spin /> : "Login"}
           </button>
         </Form>
-        <p className="text-center p-3">
+        <p className="text-center pt-3">
           Create Account ?<Link href="/register">Signup</Link>
+        </p>
+        <p className="text-center">
+          <Link  href="/forgot-password">
+            <a className="text-danger">
+            Forgot password  
+            </a></Link>
         </p>
       </div>
     </>

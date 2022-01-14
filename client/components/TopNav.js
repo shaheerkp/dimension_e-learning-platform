@@ -6,6 +6,7 @@ import {
   UserAddOutlined,
   CoffeeOutlined,
   DashboardOutlined,
+  CarryOutOutlined,
 } from "@ant-design/icons";
 import Image from "next/image";
 import icon from "../public/images/die.jpg";
@@ -79,18 +80,31 @@ function TopNav() {
           <a className="text-white">DIMENSIONS</a>
         </Link>
       </Item>
-
-      <Item
-        key="/instructor"
-        onClick={(e) => setCurrent(e.key)}
-        icon={
-          <UserAddOutlined style={{ color: "#73FBFD", fontSize: "20px" }} />
-        }
-      >
-        <Link href="/instructor">
-          <a className="text-white">Became Instructor</a>
-        </Link>
-      </Item>
+      {user && user.role && user.role.includes("Instructor") ? (
+        <Item
+          key="/instructor/course/create"
+          onClick={(e) => setCurrent(e.key)}
+          icon={
+            <CarryOutOutlined style={{ color: "#73FBFD", fontSize: "20px" }} />
+          }
+        >
+          <Link href="/instructor/course/create">
+            <a className="text-white">Create Course</a>
+          </Link>
+        </Item>
+      ) : (
+        <Item
+          key="/user/become-instructor"
+          onClick={(e) => setCurrent(e.key)}
+          icon={
+            <UserAddOutlined style={{ color: "#73FBFD", fontSize: "20px" }} />
+          }
+        >
+          <Link href="/user/become-instructor">
+            <a className="text-white">Become Instructor</a>
+          </Link>
+        </Item>
+      )}
 
       {user === null ? (
         <>
@@ -127,25 +141,44 @@ function TopNav() {
           }
         >
           <ItemGroup>
-            <Item icon={<DashboardOutlined style={{ color: "#73FBFD", fontSize: "20px" }}></DashboardOutlined>} key="/user">
+            <Item
+              icon={
+                <DashboardOutlined
+                  style={{ color: "#73FBFD", fontSize: "20px" }}
+                ></DashboardOutlined>
+              }
+              key="/user"
+            >
               <Link href="/user">
                 <a>Dashboard</a>
               </Link>
-
             </Item>
+            {user && user.role && user.role.includes("Instructor") && (
+              <Item
+                icon={
+                  <DashboardOutlined
+                    style={{ color: "#73FBFD", fontSize: "20px" }}
+                  ></DashboardOutlined>
+                }
+                key="/instructor"
+              >
+                <Link href="/instructor">
+                  <a>Instructor Dashboard</a>
+                </Link>
+              </Item>
+            )}
 
-          
-          <Item
-            key="/login"
-            onClick={logout}
-            icon={
-              <LoginOutlined style={{ color: "#73FBFD", fontSize: "20px" }} />
-            }
-          >
-            <Link href="/login">
-              <a className="text-white">Logout</a>
-            </Link>
-          </Item>
+            <Item
+              key="/login"
+              onClick={logout}
+              icon={
+                <LoginOutlined style={{ color: "#73FBFD", fontSize: "20px" }} />
+              }
+            >
+              <Link href="/login">
+                <a className="text-white">Logout</a>
+              </Link>
+            </Item>
           </ItemGroup>
         </SubMenu>
       )}
