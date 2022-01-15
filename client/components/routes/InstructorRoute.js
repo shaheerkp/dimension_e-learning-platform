@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { SyncOutlined } from "@ant-design/icons";
 import InstructorNav from "../nav/InsructorNav";
 
+
 const InstructorRoute = ({ children }) => {
   const [ok, setOk] = useState(false);
   const router = useRouter();
@@ -33,10 +34,12 @@ const InstructorRoute = ({ children }) => {
       ) : (
         <div className="container-fluid">
           <div className="row">
-            <div className="col-md-2">
+             
+            <div className="col-md-2" style={{minHeight:"100vh",backgroundColor:"#303030"}}>
               <InstructorNav/>
             </div>
-            <div className="col-md-10">
+           
+            <div className="col-md-10 p-0">
             {children}
             </div>
 

@@ -1,4 +1,4 @@
-import { Menu } from "antd";
+import { Menu,Affix } from "antd";
 import Link from "next/link";
 import {
   LoginOutlined,
@@ -41,6 +41,7 @@ function TopNav() {
   };
 
   return (
+    <Affix>
     <Menu
       className="text-white"
       style={{
@@ -183,6 +184,7 @@ function TopNav() {
         </SubMenu>
       )}
     </Menu>
+    </Affix>
   );
 }
 
