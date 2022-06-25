@@ -4,13 +4,14 @@ import jwt from "jsonwebtoken";
 import AWS from "aws-sdk";
 import { nanoid } from "nanoid";
 
-AWS.config.update({
+const awsConfiq={
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: process.env.AWS_REGION,
-});
+  apiVersion:process.env.AWS_API_VERSION
+};
 
-const ses = new AWS.SES({ apiVersion: "2010-12-01" });
+const ses = new AWS.SES(awsConfiq);
 
 export const register = async (req, res) => {
   console.log("register");
@@ -115,7 +116,7 @@ export const forgotPassword = async (req, res) => {
           Data: "Password Reset mail",
         },
       },
-      Source: "kpshaheer123@gmail.com",
+      Source: "kpshaheer11@gmail.com",
     };
 
     const sendEmail = ses.sendEmail(params).promise();

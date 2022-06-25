@@ -1,7 +1,7 @@
 import User from "../models/user";
 import queryString from "query-string";
 const stripe = require("stripe")(process.env.STRIPE_SECRET);
-
+import Course from "../models/course";
 export const makeInstructor = async (req, res) => {
   let doc;
   const user = await User.findById(req.user._id).exec();
@@ -52,7 +52,7 @@ export const getAccountStatus = async (req, res) => {
     const user = await User.findById(req.user._id).exec();
 
     const account = await stripe.accounts.retrieve(user.stripe_account_id);
-   
+
     if (!account.charges_enabled) {
       return res.status(401).send("Unauthorised");
     } else {
@@ -67,22 +67,33 @@ export const getAccountStatus = async (req, res) => {
         .select("-password")
         .exec();
       statusUpdated.password = undefined;
-      res.json(statusUpdated)
+      res.json(statusUpdated);
     }
   } catch (error) {}
 };
 
-export const currentInstructor=async(req,res)=>{
-try {
-  let user=await User.findById(req.user._id).exec()
-  if(!user.role.includes("Instructor")){
-    return res.sendStatus(403)
-  }else{
-    res.json({ok:true})
+export const currentInstructor = async (req, res) => {
+  try {
+    let user = await User.findById(req.user._id).exec();
+    if (!user.role.includes("Instructor")) {
+      return res.sendStatus(403);
+    } else {
+      res.json({ ok: true });
+    }
+  } catch (error) {
+    console.log(error);
   }
+};
 
-} catch (error) {
-  console.log(error);
-  
-}
-}
+export const instructorCourses = async (req, res) => {
+  try {
+    const courses = await Course.find({ instructor:req.user._id})                                     
+      .sort({ createdAt: -1 })
+      .exec();
+      console.log(courses);
+      res.json(courses)
+  } catch (error) {
+    console.log(error);
+  }
+};
+ 
