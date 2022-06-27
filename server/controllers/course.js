@@ -102,6 +102,9 @@ export const readCourse = async (req, res) => {
 
 export const uploadVideo = async (req, res) => {
   try {
+    if (req.user._id != req.params.instructorId) {
+      return res.status(400).send("Unauthorised");
+    }
     const { video } = req.files;
     // const path=`${__dirname}`
     const type = video.mimetype.split("/")[1];
@@ -134,4 +137,72 @@ export const uploadVideo = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+export const removeVideo = async (req, res) => {
+  if (req.user._id != req.params.instructorId) {
+    return res.status(400).send("Unauthorised");
+  }
+  const { Bucket, Key } = req.body;
+
+  try {
+    const params = {
+      Bucket,
+      Key,
+    };
+
+    S3.deleteObject(params, (err, data) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      }
+      res.send({ ok: true });
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const addLesson = async (req, res) => {
+  try {
+    const { slug, instructorId } = req.params;
+    const { title, content, video } = req.body;
+    if (req.user._id != instructorId) {
+      return res.status(400).send("Unauthorised");
+    }
+    const updated = await Course.findByIdAndUpdate(
+      slug,
+      { $push: { lessons: { title, content, video, slug: slugify(title) } } },
+      { new: true }
+    )
+      .populate("instructor", "_id name")
+      .exec();
+    console.log("updated", updated);
+    res.json(updated);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send("Add lesson faild");
+  }
+};
+
+export const update = async (req, res) => {
+  try {
+    const { slug } = req.params;
+  
+    const course = await Course.findById(slug);
+  
+    if (req.user._id != course.instructor) {
+      return res.status(400).send("Unauthorized");
+    }
+  
+    const update = await Course.findByIdAndUpdate(slug, req.body, {
+      new: true,
+    }).exec();
+    res.json(update)
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send()
+  }
+
 };

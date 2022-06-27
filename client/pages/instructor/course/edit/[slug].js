@@ -1,25 +1,41 @@
 import axios from "axios";
-import { useState } from "react";
-import InstructorRoute from "../../../components/routes/InstructorRoute";
-
+import { useState, useEffect } from "react";
+import InstructorRoute from "../../../../components/routes/InstructorRoute";
+import { SaveOutlined,DeleteOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
-import CourseCreateForm from "../../../components/forms/CourseCreateForm";
+import CourseCreateForm from "../../../../components/forms/CourseCreateForm";
+import { List,Avatar } from "antd";
+import Item from "antd/lib/list/Item";
 
-const CourseCreate = () => {
+
+const CourseEdit = () => {
   const router = useRouter();
+  const { slug } = router.query;
   const [values, setValues] = useState({
     name: "",
     description: "",
     price: "",
     uploading: "",
     paid: true,
-    loading: false,
+    loading: false, 
+    lessons:[] 
   });
+  useEffect(() => {
+    loadCourse();
+  }, [slug]);
 
   const [preview, setPreview] = useState("");
   const [uploadButtonText, setUploadButtonText] = useState("");
   const [imageDetails, setImageDetails] = useState({});
+
+  const loadCourse = async () => {
+    const { data } = await axios.get(`/api/course/${slug}`);
+    setValues(data);
+    if (data && data.image) {
+      setImageDetails(data.image);
+    }
+  };
 
   const handleChanges = (e) => {
     console.log(e.target.value, "-", e.target.name);
@@ -66,23 +82,48 @@ const CourseCreate = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post("/api/course", {
+      const { data } = await axios.put(`/api/course/${slug}`, {
         ...values,
         image: imageDetails,
       });
-      toast.success("Course added sucessfully");
-      router.push("/instructor");
+      toast.success("Course updated sucessfully");
+      //   router.push("/instructor");
     } catch (error) {
       toast.error(error.response.data);
     }
   };
+
+  const handleDrag=(e,index)=>{
+   
+    e.dataTransfer.setData('itemIndex',index)
+
+  }
+  const handleDrop=async(e,index)=>{
+    
+    const movingItemIndex=e.dataTransfer.getData("itemIndex");
+    const targetItemIndex=index;
+    let allLessons=values.lessons 
+
+    let movingItem=allLessons[movingItemIndex];
+    allLessons.splice(movingItemIndex,1)
+    allLessons.splice(targetItemIndex,0,movingItem)
+
+     setValues({...values,lessons:[...allLessons]})
+    const { data } = await axios.put(`/api/course/${slug}`, {
+        ...values,
+        image: imageDetails,
+      });
+      toast.success("Lessons rearranged successfully")
+      
+
+  }
 
   return (
     <InstructorRoute>
       <>
         <div className="jumbotron bg-primary square text-center">
           <h1 style={{ height: "150px" }} className="p-5  text-light">
-            Create course
+            Update course
           </h1>
         </div>
         <div className="p-3">
@@ -95,10 +136,38 @@ const CourseCreate = () => {
             preview={preview}
             uploadButtonText={uploadButtonText}
             handleImageRemove={handleImageRemove}
+            editpage={true}
           />
         </div>
+        <hr/>
+        <div className="ms-3 pb-5">
+            <div className="lesson-list">
+              <h4>
+                {values && values.lessons && values.lessons.length}-Lessons
+              </h4>
+
+              <List
+                onDragOver={(e)=>e.preventDefault()}
+                itemLayout="horizontal"
+                dataSource={values && values.lessons}
+                renderItem={(item, index) => (
+                  <Item
+                  draggable
+                  onDragStart={e=>handleDrag(e,index)}
+                  onDrop={e=>handleDrop(e,index)}
+                  >
+                    <Item.Meta
+                      avatar={<Avatar>{index + 1}</Avatar>}
+                      title={item.title}
+                    ></Item.Meta>
+                    <DeleteOutlined className="text-danger float-right me-5" onClick={()=>{handleDelete(index,item)}} />
+                  </Item>
+                )}
+              ></List>
+            </div>
+          </div> 
       </>
     </InstructorRoute>
   );
 };
-export default CourseCreate;
+export default CourseEdit;

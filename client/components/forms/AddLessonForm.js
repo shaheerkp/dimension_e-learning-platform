@@ -1,12 +1,14 @@
-import { Button, Col, Input, Row } from "antd";
-
+import { Button, Col, Input, Row, Progress,Tooltip } from "antd";
+import { CloseCircleFilled } from "@ant-design/icons";
 const AddLessonForm = ({
+  progress,
   values,
   setValues,
   handleAddLesson,
   uploading,
   uploadButtonText,
   handleVideo,
+  handleRemoveVideo
 }) => {
   return (
     <div className="container pt-3">
@@ -26,7 +28,7 @@ const AddLessonForm = ({
           className="form-control mt-3"
           cols="7"
           rows="7"
-          onChange={() => {
+          onChange={(e) => {
             setValues({ ...values, content: e.target.value });
           }}
         />
@@ -41,14 +43,26 @@ const AddLessonForm = ({
                 hidden
               />
             </label>
+            {!uploading&&values.video.Location&&
+            <Tooltip title="Remove video">
+              <CloseCircleFilled onClick={handleRemoveVideo} className="ms-2 text-danger"/>
+
+            </Tooltip>
+
+            }
+          </Col>
+          <Col span={24}>
+            {progress > 0 && (
+              <Progress className="d-flex -center pt-2" percent={progress} steps={10}/>
+            )}
           </Col>
           <Col span={24}>
             <Button
-              onChange={handleVideo}
+              onClick={handleAddLesson}
               className=" mt-3"
               size="large"
               type="primary"
-              loading={uploading}  
+              loading={uploading}
             >
               Upload lesson
             </Button>
