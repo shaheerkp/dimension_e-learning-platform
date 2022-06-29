@@ -19,7 +19,10 @@ const lessonSchema = new Schema(
       type: {},
       minlength: 200,
     },
-    video_link: {},
+    video: {
+      type:Object,
+      
+    },
     free_preview: {
       type: Boolean,
       default: false,

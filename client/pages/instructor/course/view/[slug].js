@@ -97,7 +97,7 @@ const CourseView = () => {
         }
       );
 
-      //  console.log(data);
+       console.log(data);
       setValues({ ...values, video: data });
       setUploading(false);
     } catch (error) {
@@ -106,6 +106,17 @@ const CourseView = () => {
       toast.error("video upload failed");
     }
   };
+
+  const handleDelete=async(index)=>{
+    const answer=window.confirm("Are you sure want to delete")
+    if(!answer) return
+    let allLessons=values.lessons
+    const removed=allLessons.splice(index,1)
+    setValues({...values,lessons:allLessons})
+
+    // const {data}=await axios.put(`/api/course/${removed._id}`)
+
+  }
 
   return (
     <InstructorRoute>

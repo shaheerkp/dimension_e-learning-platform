@@ -115,7 +115,7 @@ export const uploadVideo = async (req, res) => {
     let videofile = fs.readFileSync(
       __dirname + "\\..\\video\\" + `upload.${type}`
     );
-    console.log(videofile);
+
     if (!video) return res.status(400).send("No video");
     const params = {
       Bucket: "diemension-bucket",
@@ -131,7 +131,6 @@ export const uploadVideo = async (req, res) => {
         console.log(err);
         res.sendStatus(400);
       }
-      console.log(data);
       res.send(data);
     });
   } catch (error) {
@@ -164,6 +163,8 @@ export const removeVideo = async (req, res) => {
 };
 
 export const addLesson = async (req, res) => {
+  console.log("heeeeeeeeeeeeeeeeeeeeerreeeeeeeeeeeeeeeeeeeeeeeeeee", req.body);
+  console.log("_____________________________");
   try {
     const { slug, instructorId } = req.params;
     const { title, content, video } = req.body;
@@ -188,21 +189,76 @@ export const addLesson = async (req, res) => {
 export const update = async (req, res) => {
   try {
     const { slug } = req.params;
-  
+
     const course = await Course.findById(slug);
-  
+
     if (req.user._id != course.instructor) {
       return res.status(400).send("Unauthorized");
     }
-  
+
     const update = await Course.findByIdAndUpdate(slug, req.body, {
       new: true,
     }).exec();
-    res.json(update)
+    res.json(update);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send();
+  }
+};
+
+export const removeLesson = async (req, res) => {
+  console.log("hereeeeee");
+  try {
+    const { slug, lessonId } = req.params;
+    const course = await Course.findById(slug).exec();
+    console.log(course);
+    if (req.user._id != course.instructor) {
+      return res.status(400).send("Unauthorized");
+    }
+
+    const deletedCourse = await Course.findByIdAndUpdate(course._id, {
+      $pull: { lessons: { _id: lessonId } },
+    }).exec();
+    console.log(deletedCourse);
+
+    res.send({ ok: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send();
+  }
+};
+
+export const updateLesson = async (req, res) => {
+
+  console.log("herrrrrrrrrrrrrrrrrrrr",req.body);
+  try {
+    const { slug } = req.params;
+  const { _id, title, content, video, free_preview } = req.body;
+
+  const course = await Course.findById(slug).select("instructor").exec();
+  console.log("&&&",course);
+  if (course.instructor != req.user._id) {
+    return res.status(400).send("Unautherised");
+  }
+
+  const update = await Course.updateOne(
+    { "lessons._id": _id },
+    {
+      $set: {
+        "lessons.$.title": title,
+        "lessons.$.content": content,
+        "lessons.$.video": video,
+        "lessons.$.free_preview": free_preview,
+      },
+    },
+    {new:true}
+  ).exec();
+  console.log("update:",update);
+  res.json({ok:true})
     
   } catch (error) {
     console.log(error);
-    return res.status(400).send()
+    return res.status(400).send("Update failed")
   }
-
+  
 };
